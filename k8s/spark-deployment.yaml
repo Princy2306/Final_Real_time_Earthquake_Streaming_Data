@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: earthquake-spark-processor
+  namespace: earthquake-platform
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: earthquake-spark-processor
+  template:
+    metadata:
+      labels:
+        app: earthquake-spark-processor
+    spec:
+      containers:
+        - name: spark-processor
+          image: YOUR_REGISTRY/earthquake-spark:latest
+          env:
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: kafka:9092
+            - name: KAFKA_TOPIC
+              value: earthquakes
+            - name: MINIO_ENDPOINT
+              value: http://minio:9000
+            - name: MINIO_BUCKET
+              value: earthquake-data
+            - name: MINIO_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: minio-credentials
+                  key: access-key
+            - name: MINIO_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: minio-credentials
+                  key: secret-key

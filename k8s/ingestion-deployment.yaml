@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: earthquake-ingestion
+  namespace: earthquake-platform
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: earthquake-ingestion
+  template:
+    metadata:
+      labels:
+        app: earthquake-ingestion
+    spec:
+      containers:
+        - name: ingestion
+          image: YOUR_REGISTRY/earthquake-platform:latest
+          command: ["python", "-m", "earthquake_platform.ingestion"]
+          env:
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: kafka:9092
+            - name: KAFKA_TOPIC
+              value: earthquakes
+            - name: POLL_INTERVAL_SECONDS
+              value: "60"
+          volumeMounts:
+            - name: ingestion-state
+              mountPath: /app/data
+      volumes:
+        - name: ingestion-state
+          persistentVolumeClaim:
+            claimName: ingestion-state
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ingestion-state
+  namespace: earthquake-platform
+spec:
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests:
+      storage: 1Gi

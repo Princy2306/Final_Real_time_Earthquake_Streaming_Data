@@ -1,0 +1,23 @@
+usgs:
+  feed_url: https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson
+  poll_interval_seconds: 60
+  request_timeout_seconds: 20
+
+kafka:
+  bootstrap_servers: kafka:9092
+  topic: earthquakes
+
+storage:
+  endpoint: http://minio:9000
+  bucket: earthquake-data
+  access_key: minioadmin
+  secret_key: minioadmin
+  secure: false
+  root_prefix: lakehouse
+
+processing:
+  checkpoint_location: s3a://earthquake-data/checkpoints/earthquakes
+  max_time_days: 7
+  max_distance_km: 100
+  minimum_cluster_events: 2
+  unusual_magnitude_threshold: 7.0
